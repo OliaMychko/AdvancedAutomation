@@ -1,0 +1,24 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="Report Portal Widget Tests">
+    <test name="Report Portal Widget Tests">
+        <classes>
+            <class name="tests.ReportPortalWidgetTests">
+                <methods>
+                    <include name="testReportPortalLogin"/>
+                </methods>
+            </class>
+            <class name="tests.ReportPortalWidgetTests">
+                <methods>
+                    <include name="testWidgetsPageIsOpened"/>
+                </methods>
+            </class>
+            <class name="tests.ReportPortalWidgetTests">
+                <methods>
+                    <include name="testButtonsArePresent"/>
+                    <include name="testWidgetTitleExists"/>
+                    <include name="testAddingSharedWidgetsToDashboard"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
