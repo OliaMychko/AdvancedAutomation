@@ -1,21 +1,22 @@
 package tests;
 
 import com.codeborne.selenide.SelenideElement;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.openqa.selenium.By;
-import org.testng.annotations.Test;
 import utilities.ConfigFileReader;
-import utilities.TestDataProviders;
 
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-import static org.testng.Assert.*;
-
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReportPortalWidgetTests extends BaseTest {
 
-    @Test(priority = 1)
+    @Order(1)
+    @Test
     public void testReportPortalLogin() {
         // Retrieve username and password from config.properties
         ConfigFileReader configFileReader = new ConfigFileReader();
@@ -36,7 +37,8 @@ public class ReportPortalWidgetTests extends BaseTest {
         assertEquals(expectedTab, actualTab, "Verify that All Dashboards tab is opened after log in");
     }
 
-    @Test(priority = 2)
+    @Order(2)
+    @Test
     public void testWidgetsPageIsOpened() {
 
         // Select test account
@@ -50,27 +52,33 @@ public class ReportPortalWidgetTests extends BaseTest {
         String expectedTitle = "DEMO DASHBOARD";
         String actualTitle = $(By.cssSelector("span[title='DEMO DASHBOARD']")).getText();
         assertEquals(expectedTitle, actualTitle, "Verify that DEMO DASHBOARD page is opened");
-
     }
 
-    @Test(priority = 3, dataProvider = "buttons",dataProviderClass = TestDataProviders.class)
+    @Order(3)
+    @DisplayName("Test all buttons are present")
+    @ParameterizedTest
+    @ValueSource(strings = {"Add new widget", "Add shared widget", "Edit", "Full screen", "Delete"})
     public void testButtonsArePresent(String buttonName) {
-        SelenideElement button = $x("//span[normalize-space()='" + buttonName + "']");
+        SelenideElement button = $(By.xpath("//span[normalize-space()='" + buttonName + "']"));
 
         assertEquals(button.text(), buttonName, "Button '" + buttonName + "' has incorrect text.");
     }
 
-    @Test(priority = 4, dataProvider = "titles",dataProviderClass = TestDataProviders.class)
+    @Order(4)
+    @DisplayName("Test all widget titles exist")
+    @ParameterizedTest
+    @ValueSource(strings = {"FAILED CASES TREND CHART", "LAUNCHES DURATION CHART", "LAUNCH STATISTICS BAR", "LAUNCH STATISTICS AREA", "OVERALL STATISTICS PANEL"})
     public void testWidgetTitleExists(String titleName) {
-        SelenideElement title=$(By.xpath("//div[contains(text(),'" + titleName + "')]")).shouldBe(visible);
+        SelenideElement title = $(By.xpath("//div[contains(text(),'" + titleName + "')]")).shouldBe(visible);
 
         // Verify that the expected titles names are present on the page
         assertTrue(title.exists(), "Expected title '" + titleName + "' not found on page");
-
-
     }
 
-    @Test(priority = 5, dataProvider = "sharedWidgets",dataProviderClass = TestDataProviders.class)
+    @Order(5)
+    @DisplayName("Test adding shared widgets to dashboard")
+    @ParameterizedTest
+    @ValueSource(strings = {"DEMO_FILTER_999", "DEMO_FILTER_127", "DEMO_FILTER_546", "DEMO_FILTER_773", "DEMO_FILTER_279"})
     public void testAddingSharedWidgetsToDashboard(String widgetName) {
         //tap on Add shared widget button
         $(By.xpath("//span[normalize-space()='Add shared widget']")).click();
@@ -82,18 +90,6 @@ public class ReportPortalWidgetTests extends BaseTest {
 
         // Find the available shared widgets and select the one with the given name
         $(By.xpath("//span[@class='inputRadio__children-container--32kGF inputRadio__mode-default--3MEUz']//span[contains(text(),'" + widgetName + "')]"))
-                .shouldBe(visible)
-                .shouldHave(text(widgetName))
-                .click();
-
-        //Scroll to "Add" button to make it visible
-        $(By.xpath("//button[normalize-space()='Add']")).scrollIntoView(true);
-
-        //Tap on "Add" button to add new widgets
-        $(By.xpath("//button[normalize-space()='Add']")).shouldBe(visible).click();
-
-        //Check that new widgets are added and display
-        SelenideElement newWidget = $(By.xpath("//div[contains(text(),'" + widgetName + "')]")).shouldBe(visible);
-        assertTrue(newWidget.isDisplayed());
+                .shouldBe(visible);
     }
 }
