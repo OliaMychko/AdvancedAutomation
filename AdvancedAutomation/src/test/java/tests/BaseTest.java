@@ -1,48 +1,37 @@
 package tests;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+import com.codeborne.selenide.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeSuite;
 import utilities.ConfigFileReader;
+import com.codeborne.selenide.Selenide;
 
+import static com.codeborne.selenide.Selenide.open;
 
 public class BaseTest {
-    protected WebDriver driver;
     protected ConfigFileReader configReader;
-    public static Logger logger = LogManager.getLogger();
+    protected static final Logger logger = LogManager.getLogger(BaseTest.class);
 
-
-    @BeforeEach
+    @BeforeSuite
     public void setUp() {
         try {
-            ChromeOptions option = new ChromeOptions();
-            option.addArguments("--remote-allow-origins=*");
-
-            WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver(option);
-            driver.manage().window().maximize();
-            logger.info("Drivers Initialised");
+            Configuration.browser = "chrome";
+            Configuration.browserSize = "1920x1080";
 
             // Initialize the ConfigFileReader
             configReader = new ConfigFileReader();
-            driver.get(configReader.getProperty("url"));
+            open(configReader.getProperty("url"));
             logger.info("Browser Opened");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error in setting up the test: ", e);
         }
     }
 
-    @AfterEach
+    @AfterSuite
     public void tearDown() {
+        Selenide.closeWebDriver();
         logger.info("Execution Completed");
-        if (driver != null) {
-            driver.quit();
-        }
     }
 }
